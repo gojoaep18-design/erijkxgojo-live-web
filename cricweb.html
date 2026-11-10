@@ -1,0 +1,309 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cricket Live TV</title>
+
+<link href="https://vjs.zencdn.net/8.23.4/video-js.css" rel="stylesheet">
+<script src="https://vjs.zencdn.net/8.23.4/video.min.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #090b10;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    background: #111722;
+    padding: 20px;
+    text-align: center;
+    font-size: 23px;
+    font-weight: bold;
+    border-bottom: 1px solid #252e3d;
+}
+
+.container {
+    max-width: 1050px;
+    margin: 25px auto;
+    padding: 12px;
+}
+
+.match {
+    background: #172233;
+    padding: 18px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+}
+
+.live {
+    color: #ff4444;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.match h2 {
+    margin-bottom: 8px;
+}
+
+.match p {
+    color: #aab4c5;
+    font-size: 14px;
+}
+
+.player-box {
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #283346;
+}
+
+.video-js {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    background: #000;
+}
+
+.video-js .vjs-control-bar {
+    background: rgba(10, 15, 25, .95);
+}
+
+.video-js .vjs-big-play-button {
+    background: #1765d1;
+    border: none;
+    border-radius: 50%;
+    width: 65px;
+    height: 65px;
+    line-height: 65px;
+    margin-left: -32px;
+    margin-top: -32px;
+}
+
+.video-js .vjs-play-progress {
+    background: #1765d1;
+}
+
+.status {
+    color: #9ba8bb;
+    font-size: 13px;
+    margin-top: 12px;
+}
+
+.section-title {
+    margin-top: 25px;
+    font-size: 19px;
+}
+
+.channels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.channels button {
+    padding: 16px 10px;
+    background: #182538;
+    color: white;
+    border: 1px solid #30415a;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: .2s;
+}
+
+.channels button:hover {
+    background: #234675;
+}
+
+.channels button.active {
+    background: #1765d1;
+    border-color: #3987ff;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #69778a;
+    font-size: 12px;
+}
+
+@media(max-width:600px) {
+    header {
+        font-size: 19px;
+    }
+
+    .container {
+        margin: 12px auto;
+    }
+
+    .channels {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>🏏 CRICKET LIVE TV</header>
+
+<div class="container">
+
+    <div class="match">
+        <div class="live">● LIVE</div>
+        <h2>3rd ODI - 10 November 2026</h2>
+        <p>Select your preferred commentary language</p>
+    </div>
+
+    <div class="player-box">
+        <video
+            id="video"
+            class="video-js vjs-big-play-centered"
+            controls
+            preload="auto"
+            playsinline>
+        </video>
+    </div>
+
+    <p class="status" id="status">
+        Select a channel to start playback
+    </p>
+
+    <h3 class="section-title">Available Channels</h3>
+
+    <div class="channels" id="channels"></div>
+
+</div>
+
+<footer>
+    Cricket Live TV
+</footer>
+
+<script>
+
+// CHANNEL LIST
+
+const channelList = [
+    {
+        name: "Hindi",
+        language: "HIN",
+        url: "https://liveakmt-p-md.slivcdn.com/hls/live/2119921/cricodi_0911/HIN/std_lrl-800300010.m3u8?hdnea=exp=1794324042~acl=/*~id=7b6822a0fe220dbd265899488e14dfba-1794280842403~hmac=fbf71dc466afdf002ad52a908880731451a9b0899cb6583d171deb64d25f42ef"
+    },
+    {
+        name: "English",
+        language: "ENG",
+        url: "https://liveakmt-p-md.slivcdn.com/hls/live/2119931/cricodi_0911/ENG/std_lrl-800300010.m3u8?hdnea=exp=1794324042~acl=/*~id=7b6822a0fe220dbd265899488e14dfba-1794280842403~hmac=fbf71dc466afdf002ad52a908880731451a9b0899cb6583d171deb64d25f42ef"
+    },
+    {
+        name: "Telugu",
+        language: "TEL",
+        url: "https://liveakmt-p-md.slivcdn.com/hls/live/2119941/cricodi_0911/TEL/std_lrl-800300010.m3u8?hdnea=exp=1794324042~acl=/*~id=7b6822a0fe220dbd265899488e14dfba-1794280842403~hmac=fbf71dc466afdf002ad52a908880731451a9b0899cb6583d171deb64d25f42ef"
+    },
+    {
+        name: "Tamil",
+        language: "TAM",
+        url: "https://liveakmt-p-md.slivcdn.com/hls/live/2119951/cricodi_0911/TAM/std_lrl-800300010.m3u8?hdnea=exp=1794324042~acl=/*~id=7b6822a0fe220dbd265899488e14dfba-1794280842403~hmac=fbf71dc466afdf002ad52a908880731451a9b0899cb6583d171deb64d25f42ef"
+    },
+    {
+        name: "Kannada",
+        language: "KAN",
+        url: "https://liveakmt-p-md.slivcdn.com/hls/live/2119782/cricodi_0911/KAN/std_lrl-800300010.m3u8?hdnea=exp=1794324042~acl=/*~id=7b6822a0fe220dbd265899488e14dfba-1794280842403~hmac=fbf71dc466afdf002ad52a908880731451a9b0899cb6583d171deb64d25f42ef"
+    }
+];
+
+const statusText = document.getElementById("status");
+const channels = document.getElementById("channels");
+
+// INITIALIZE VIDEO.JS
+
+const player = videojs("video", {
+    controls: true,
+    fluid: true,
+    responsive: true,
+    liveui: true,
+    preload: "auto"
+});
+
+// CREATE CHANNEL BUTTONS
+
+channelList.forEach(channel => {
+
+    const button = document.createElement("button");
+
+    button.textContent = channel.name;
+
+    button.onclick = () => {
+        playChannel(channel, button);
+    };
+
+    channels.appendChild(button);
+
+});
+
+// PLAY CHANNEL
+
+async function playChannel(channel, button) {
+
+    if (!channel.url.startsWith("https://") ||
+        channel.url.includes("YOUR_AUTHORIZED")) {
+
+        statusText.textContent =
+            "Add an authorized stream URL for " + channel.name;
+
+        return;
+    }
+
+    document.querySelectorAll(".channels button")
+        .forEach(btn => btn.classList.remove("active"));
+
+    button.classList.add("active");
+
+    statusText.textContent =
+        "Loading " + channel.name + "...";
+
+    player.src({
+        src: channel.url,
+        type: "application/x-mpegURL"
+    });
+
+    player.play()
+        .then(() => {
+            statusText.textContent =
+                "Playing " + channel.name;
+        })
+        .catch(error => {
+            console.error(error);
+
+            statusText.textContent =
+                "Unable to play " + channel.name +
+                ". Check stream availability and browser support.";
+        });
+}
+
+// PLAYER ERROR HANDLING
+
+player.on("error", function() {
+
+    const error = player.error();
+
+    console.error("Video.js error:", error);
+
+    statusText.textContent =
+        "Playback error. Check the stream URL, authorization or CORS.";
+
+});
+
+</script>
+
+</body>
+</html>
